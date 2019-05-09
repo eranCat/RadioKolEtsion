@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "496299798542",
+    "firebase_url": "https://radio-8f2c5.firebaseio.com",
+    "project_id": "radio-8f2c5",
+    "storage_bucket": "radio-8f2c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496299798542:android:57843fa99cb92917",
+        "android_client_info": {
+          "package_name": "com.erank.radiokoletsionv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "496299798542-hvhpuo9m6rais6vhg8uk9f3p51qvlutn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erank.radiokoletsionv2",
+            "certificate_hash": "dda48b7956fef2a97ff4db024f5eb38ca7eeded1"
+          }
+        },
+        {
+          "client_id": "496299798542-oimrc0tt81iljt1c5afrn9oantd0jsui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj8rpPs-Cz9mCfaxyZ3CIxVQ7MQCVsVjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "496299798542-oimrc0tt81iljt1c5afrn9oantd0jsui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

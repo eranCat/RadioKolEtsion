@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigationDrawer">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_prefs"
+            android:icon="@drawable/ic_local_library"
+            android:title="@string/my_stuff" />
+    </group>
+
+    <item android:title="@string/extra">
+        <menu>
+            <!--<item-->
+            <!--android:id="@+id/nav_share"-->
+            <!--android:icon="@drawable/ic_share"-->
+            <!--android:title="Share app" />-->
+
+            <item
+                android:id="@+id/nav_logUser"
+                android:icon="@drawable/ic_login"
+                android:title="@string/login" />
+
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_about"
+                android:title="@string/about_title" />
+        </menu>
+    </item>
+</menu>

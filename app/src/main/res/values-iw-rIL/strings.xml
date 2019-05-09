@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="skip_txt"><u>דלגו והרשמו אחר כך</u></string>
+    <string name="label_play">נגן</string>
+    <string name="label_pause">הפסק</string>
+    <string name="label_next">הבא</string>
+    <string name="label_previous">הקודם</string>
+    <string name="search_hint">חיפוש</string>
+    <string name="login_required_msg">יש להכנס לחשבונך כדי להשתמש בפעולה זו</string>
+    <string name="confirm_logout_msg">בטוח שאתה רוצה לצאת?</string>
+    <string name="no">לא</string>
+    <string name="yes">כן</string>
+    <string name="music">מוזיקה</string>
+    <string name="non_playing">לא מתנגנת תכנית כרגע</string>
+    <string name="signout">התנתק</string>
+    <string name="no_internet">צריך אינטרנט</string>
+    <string name="no_internet_conn">אין חיבור אינטרנט</string>
+    <string name="ok">אוקי</string>
+    <string name="try_again">נסה שוב</string>
+    <string name="cant_sign_out">לא מצליח להתנתק</string>
+    <string name="search_something">חפש משהו...</string>
+    <string name="likes_txt">אנשים אהבו</string>
+    <string name="share_poscast">שתף פודקאסט</string>
+    <string name="check_out_pod">תקשיב לפודקאסט הזה -</string>
+    <string name="exist_in_fav">כבר במועדפים</string>
+    <string name="added_to_fav">התווסף למועדפים</string>
+    <string name="removed_fav">נמחק ממועדפים</string>
+    <string name="about_app">אודות</string>
+    <string name="about">יוצרים : ערן קרסו , יהונתן שני.\\nנוצר עבור בית אקשטיין</string>
+    <string name="login">התחבר</string>
+    <string name="about_title">אודות</string>
+    <string name="my_stuff">הדברים שלי</string>
+    <string name="extra">עוד</string>
+    <string name="no_guest">לא , אורח</string>
+    <string name="guest">אורח</string>
+    <string name="app_name">רדיו קול עציון</string>
+    <string name="login_with_facebook">התחברו עם פייסבוק</string>
+    <string name="login_with_google">התחברו עם חשבון גוגל</string>
+    <string name="firstScreenMassage">האזינו לרדיו קול עציון</string>
+    <string name="loading">טוען</string>
+</resources>
