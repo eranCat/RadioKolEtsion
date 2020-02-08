@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="skip_txt"><u>דלגו והרשמו אחר כך</u></string>
+    <string name="guest_txt"><u>כניסה בתור אורח</u></string>
     <string name="label_play">נגן</string>
     <string name="label_pause">הפסק</string>
     <string name="label_next">הבא</string>
@@ -18,14 +18,14 @@
     <string name="ok">אוקי</string>
     <string name="try_again">נסה שוב</string>
     <string name="cant_sign_out">לא מצליח להתנתק</string>
-    <string name="search_something">חפש משהו...</string>
+    <string name="search_something">חפש משהו…</string>
     <string name="likes_txt">אנשים אהבו</string>
     <string name="share_poscast">שתף פודקאסט</string>
     <string name="check_out_pod">תקשיב לפודקאסט הזה -</string>
     <string name="exist_in_fav">כבר במועדפים</string>
     <string name="added_to_fav">התווסף למועדפים</string>
     <string name="removed_fav">נמחק ממועדפים</string>
-    <string name="about_app">אודות</string>
+    <string name="about_app">אודות אפליקציה</string>
     <string name="about">יוצרים : ערן קרסו , יהונתן שני.\\nנוצר עבור בית אקשטיין</string>
     <string name="login">התחבר</string>
     <string name="about_title">אודות</string>
@@ -34,8 +34,19 @@
     <string name="no_guest">לא , אורח</string>
     <string name="guest">אורח</string>
     <string name="app_name">רדיו קול עציון</string>
-    <string name="login_with_facebook">התחברו עם פייסבוק</string>
-    <string name="login_with_google">התחברו עם חשבון גוגל</string>
+    <string name="signin_with_facebook">התחברו עם פייסבוק</string>
+    <string name="signin_with_google">התחברו עם חשבון גוגל</string>
     <string name="firstScreenMassage">האזינו לרדיו קול עציון</string>
     <string name="loading">טוען</string>
+    <string name="welcome">אהלן לך</string>
+    <string name="errorTitle">אופס, משהו קרה</string>
+    <string name="action_settings" translatable="false">הגדרות</string>
+    <string name="action_search">חיפוש</string>
+    <string name="title_profile">פרופיל</string>
+    <string name="title_playlist">פלייליסט</string>
+    <string name="errorPosBtn">טוב נו</string>
+    <string name="gLoginErr">יש בעיה עם ההרשמה של גוגל</string>
+    <string name="title_music">נגן</string>
+    <string name="favorites">הפודקאסטים המועדפים עליי</string>
+    <string name="comment_something">כתוב תגובה …</string>
 </resources>

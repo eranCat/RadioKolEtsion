@@ -1,79 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#BBEBE3"
-    android:padding="16dp">
+    android:background="@color/logo_bg"
+    android:elevation="8dp">
 
 
     <ImageView
         android:id="@+id/imageNotification"
         android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:scaleType="centerInside"
         android:src="@drawable/logo"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textDescription"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:gravity="center_vertical"
+        android:fontFamily="@font/antic"
+        android:maxLines="3"
+        android:minLines="3"
+        android:text="bla stuff"
+        android:textAlignment="textStart"
         android:textColor="#fff"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/togglePlayBtn"
-        app:layout_constraintEnd_toStartOf="@+id/btnCloseNotification"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageNotification"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnCloseNotification"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:background="@drawable/ic_close"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/red_btn"
+        android:padding="4dp"
+        android:src="@drawable/ic_close"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
-    <Button
-        android:id="@+id/btnPreviousNotification"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/ic_skip_previous_black_24dp"
+        android:gravity="center"
+        android:layoutDirection="ltr"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/togglePlayBtn" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageNotification"
+        app:layout_constraintTop_toBottomOf="@+id/textDescription"
+        app:layout_constraintVertical_bias="0.0">
 
-    <com.wnafee.vector.MorphButton
-        android:id="@+id/togglePlayBtn"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnNextNotification"
-        app:vc_endDrawable="@drawable/ic_pause_to_play"
-        app:vc_startDrawable="@drawable/ic_play_to_pause" />
+        <ImageButton
+            android:id="@+id/rewind_30Btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="rewind"
+            android:scaleType="fitXY"
+            android:tint="@color/colorPrimaryDark"
+            app:srcCompat="@drawable/ic_rewind_30" />
 
-    <Button
-        android:id="@+id/btnNextNotification"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/ic_skip_next_black_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/btnPreviousNotification"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/ic_skip_previous" />
+
+        <com.wnafee.vector.MorphButton
+            android:id="@+id/player_togglePlayBtn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            app:vc_endDrawable="@drawable/ic_pause_to_play"
+            app:vc_foregroundTint="@color/colorPrimaryDark"
+            app:vc_startDrawable="@drawable/ic_play_to_pause" />
+
+        <Button
+            android:id="@+id/btnNextNotification"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/ic_skip_next" />
+
+        <ImageButton
+            android:id="@+id/forward_30Btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="forward"
+            android:scaleType="fitXY"
+            android:tint="@color/colorPrimaryDark"
+            app:srcCompat="@drawable/ic_forward_30" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

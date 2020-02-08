@@ -11,10 +11,10 @@
 
     <item android:title="@string/extra">
         <menu>
-            <!--<item-->
-            <!--android:id="@+id/nav_share"-->
-            <!--android:icon="@drawable/ic_share"-->
-            <!--android:title="Share app" />-->
+<!--            <item-->
+<!--            android:id="@+id/nav_share"-->
+<!--            android:icon="@drawable/ic_share"-->
+<!--            android:title="Share app" />-->
 
             <item
                 android:id="@+id/nav_logUser"

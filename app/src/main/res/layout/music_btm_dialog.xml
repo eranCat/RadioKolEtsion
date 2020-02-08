@@ -22,12 +22,12 @@
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/playPauseBtn"
+        app:layout_constraintEnd_toStartOf="@+id/musicbar_morphBtn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.wnafee.vector.MorphButton
-        android:id="@+id/playPauseBtn"
+        android:id="@+id/musicbar_morphBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

@@ -2,8 +2,12 @@
 <resources>
     <color name="colorPrimary">#0C7BAD</color>
     <color name="colorPrimaryDark">#27028D</color>
-    <color name="colorAccent">#43A047</color>
+    <color name="colorAccent">#0D47A1</color>
     <color name="notification_bg">#6DBEBE</color>
     <color name="colorPrimaryLight">#A6EAFF</color>
     <color name="app_logo_background">#97C2D5</color>
+    <color name="podcast_normal_color">#97C2D5</color>
+    <color name="podcast_playing_color">@color/colorPrimaryLight</color>
+    <color name="red">#B91E1E</color>
+    <color name="logo_bg">#86BCD8</color>
 </resources>
