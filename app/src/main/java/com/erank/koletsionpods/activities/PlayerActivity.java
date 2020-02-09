@@ -152,19 +152,6 @@ public class PlayerActivity extends AppCompatActivity
         likeBtn.setImageResource(drawable);
     }
 
-    private void setupVolumeSeekbar() {
-
-//        TODO add listener for volume change
-        seekbarVolume.setMax(soundHelper.getMaxVolume());
-        seekbarVolume.setProgress(soundHelper.getCurrentVolume());
-
-        seekbarVolume.setOnSeekBarChangeListener(
-                (OnSeekBarChangeListenerAdapter) (seekBar, progress, fromUser) -> {
-                    if (fromUser)
-                        soundHelper.setVolume(progress);
-                });
-    }
-
     private void findViews() {
 
         findViewById(R.id.constraintLayout).setOnClickListener(v-> dismissKeyboard());
@@ -218,6 +205,19 @@ public class PlayerActivity extends AppCompatActivity
 
         View[] buttons = {playPauseBtn, likeBtn, favoriteBtn, commentBtn};
         for (View btn : buttons) btn.setOnClickListener(this);
+    }
+
+    private void setupVolumeSeekbar() {
+
+//        TODO add listener for volume change
+        seekbarVolume.setMax(soundHelper.getMaxVolume());
+        seekbarVolume.setProgress(soundHelper.getCurrentVolume());
+
+        seekbarVolume.setOnSeekBarChangeListener(
+                (OnSeekBarChangeListenerAdapter) (seekBar, progress, fromUser) -> {
+                    if (fromUser)
+                        soundHelper.setVolume(progress);
+                });
     }
 
     private void submitComment() {
