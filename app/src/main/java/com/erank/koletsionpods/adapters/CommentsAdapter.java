@@ -69,7 +69,7 @@ public class CommentsAdapter extends ListAdapter<Comment, CommentsAdapter.Commen
             itemView.setOnClickListener(v -> callback
                     .onItemClicked(comment, getAdapterPosition()));
 
-            userTv.setText(comment.getUserEmail());
+            userTv.setText(comment.getUserName());
             contentTv.setText(comment.getContent());
             dateTv.setText(getFormattedDate(comment.getPostDate()));
 

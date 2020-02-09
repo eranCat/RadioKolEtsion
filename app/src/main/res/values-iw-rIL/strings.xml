@@ -13,7 +13,6 @@
     <string name="music">מוזיקה</string>
     <string name="non_playing">לא מתנגנת תכנית כרגע</string>
     <string name="signout">התנתק</string>
-    <string name="no_internet">צריך אינטרנט</string>
     <string name="no_internet_conn">אין חיבור אינטרנט</string>
     <string name="ok">אוקי</string>
     <string name="try_again">נסה שוב</string>
@@ -49,4 +48,5 @@
     <string name="title_music">נגן</string>
     <string name="favorites">הפודקאסטים המועדפים עליי</string>
     <string name="comment_something">כתוב תגובה …</string>
+    <string name="close">סגירה</string>
 </resources>

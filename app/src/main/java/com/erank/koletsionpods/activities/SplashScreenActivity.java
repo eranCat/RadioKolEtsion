@@ -2,6 +2,9 @@ package com.erank.koletsionpods.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
@@ -38,6 +41,10 @@ public class SplashScreenActivity extends AppCompatActivity
         setContentView(R.layout.activity_splash_screen);
 
         progressBar = findViewById(R.id.splash_loadingBar);
+        findViewById(R.id.splashImg).setOnClickListener(v -> {
+            Animation pop = AnimationUtils.loadAnimation(this, R.anim.pop);
+            v.startAnimation(pop);
+        });
 
         connectivity = Connectivity.getInstance();
 
@@ -47,11 +54,21 @@ public class SplashScreenActivity extends AppCompatActivity
     private void checkInternetBeforeContinuing() {
         if (!connectivity.isNetworkConnected(this)) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.no_internet)
                     .setMessage(R.string.no_internet_conn)
                     .setPositiveButton(R.string.try_again,
                             (dialog, which) -> checkInternetBeforeContinuing())
+                    .setNegativeButton(R.string.close,(dialog, which) -> finish())
                     .show();
+            return;
+        }
+
+        if (getIntent().hasExtra(EXTRA_NOTIFICATION)) {
+            if (!AuthHelper.getInstance().isUserLogged(true)) {
+                startLoginActivity();
+                return;
+            }
+
+            startMain(true);
             return;
         }
 
@@ -78,7 +95,6 @@ public class SplashScreenActivity extends AppCompatActivity
 
     @Override
     public void onLoaded(List<Podcast> podcasts) {
-
         if (!AuthHelper.getInstance().isUserLogged(true)) {
             startLoginActivity();
             return;
@@ -100,17 +116,16 @@ public class SplashScreenActivity extends AppCompatActivity
     }
 
     private void startMain() {
-        Intent mainIntent = new Intent(this, MainActivity.class);
+        startMain(false);
+    }
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                boolean b = extras.getBoolean(EXTRA_NOTIFICATION, false);
-                if (b) {
-                    mainIntent.putExtras(extras);
-                }
-            }
+    private void startMain(boolean isFromNotification) {
+        Intent mainIntent = new Intent(this, PodcastsActivity.class);
+
+        if (isFromNotification) {
+            mainIntent.putExtra(EXTRA_NOTIFICATION, true);
+            int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
+            mainIntent.addFlags(flags);
         }
 
         startActivity(mainIntent);

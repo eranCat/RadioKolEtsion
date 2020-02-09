@@ -1,8 +1,5 @@
 package com.erank.koletsionpods.db.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.erank.koletsionpods.utils.enums.PodcastState;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.PropertyName;
@@ -21,29 +18,18 @@ import java.util.Objects;
 import java.util.Set;
 
 
-public class Podcast implements Parcelable {
+public class Podcast {
 
-    public static final Parcelable.Creator<Podcast> CREATOR = new Parcelable.Creator<Podcast>() {
-        @Override
-        public Podcast createFromParcel(Parcel source) {
-            return new Podcast(source);
-        }
-
-        @Override
-        public Podcast[] newArray(int size) {
-            return new Podcast[size];
-        }
-    };
     @Exclude
     public PodcastState state;
-    @Exclude
-    private Set<String> likedUserIds;
-    @Exclude
-    private List<Comment> comments;
     private String id;
     private String description;
     private String audioUrl;
     private Date date;
+    @Exclude
+    private Set<String> likedUserIds;
+    @Exclude
+    private List<Comment> comments;
 
     public Podcast() {
         likedUserIds = new HashSet<>();
@@ -68,20 +54,6 @@ public class Podcast implements Parcelable {
         audioUrl = baseHttp + filepath;
     }
 
-    protected Podcast(Parcel in) {
-        int tmpState = in.readInt();
-        this.state = tmpState == -1 ? null : PodcastState.values()[tmpState];
-        List<String> likes = new ArrayList<>();
-        in.readStringList(likes);
-        this.likedUserIds = new HashSet<>(likes);
-        this.comments = in.createTypedArrayList(Comment.CREATOR);
-        this.id = in.readString();
-        this.description = in.readString();
-        this.audioUrl = in.readString();
-        long tmpDate = in.readLong();
-        this.date = tmpDate == -1 ? null : new Date(tmpDate);
-    }
-
     @Exclude
     public List<Comment> getCommentsList() {
         return comments;
@@ -93,13 +65,8 @@ public class Podcast implements Parcelable {
         return map;
     }
 
-    @Exclude
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
     public void setComments(Map<String, Comment> comments) {
-        setComments(new ArrayList<>(comments.values()));
+        this.comments = new ArrayList<>(comments.values());
     }
 
     public String getId() {
@@ -117,14 +84,9 @@ public class Podcast implements Parcelable {
         return map;
     }
 
-    @Exclude
-    public void setLikedUserIds(Set<String> likedUserIds) {
-        this.likedUserIds = likedUserIds;
-    }
-
     @PropertyName("likes")
     public void setlikedUserIds(Map<String, Boolean> likedUserIds) {
-        setLikedUserIds(new HashSet<>(likedUserIds.keySet()));
+        this.likedUserIds = new HashSet<>(likedUserIds.keySet());
     }
 
     @Exclude
@@ -230,22 +192,6 @@ public class Podcast implements Parcelable {
     @Exclude
     public boolean isPrepared() {
         return state == PodcastState.PREPARED;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.state == null ? -1 : this.state.ordinal());
-        dest.writeStringList(new ArrayList<>(likedUserIds));
-        dest.writeTypedList(this.comments);
-        dest.writeString(this.id);
-        dest.writeString(this.description);
-        dest.writeString(this.audioUrl);
-        dest.writeLong(this.date != null ? this.date.getTime() : -1);
     }
 
     public static class NameComparator implements Comparator<Podcast> {

@@ -32,7 +32,7 @@
             app:layout_constraintStart_toStartOf="@id/guideLine22"
             app:layout_constraintTop_toBottomOf="@+id/removeFromFavBtn"
             app:vc_endDrawable="@drawable/ic_pause_to_play"
-            app:vc_foregroundTint="@android:color/white"
+            app:vc_foregroundTint="@color/podcast_tint"
             app:vc_startDrawable="@drawable/ic_play_to_pause" />
 
         <ProgressBar
@@ -43,12 +43,13 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:indeterminateTint="@color/podcast_tint"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideLine22"
             app:layout_constraintTop_toBottomOf="@+id/removeFromFavBtn"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
 
         <TextView
@@ -66,7 +67,7 @@
             android:shadowRadius="8"
             android:text="description"
             android:textAlignment="textStart"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/podcast_tint"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/dateTv"
@@ -86,7 +87,7 @@
             android:fontFamily="@font/antic"
             android:text="date"
             android:textAlignment="textStart"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/podcast_tint"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/guideLine22"
@@ -104,6 +105,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
+            android:tint="@color/podcast_tint"
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -129,7 +131,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
-                android:tint="@color/colorPrimaryDark"
+                android:tint="@color/podcast_tint"
                 app:srcCompat="@drawable/ic_heart_on" />
 
             <TextView
@@ -140,7 +142,7 @@
                 android:fontFamily="@font/abel"
                 android:gravity="center"
                 android:text="1111"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/podcast_tint"
                 android:textSize="18sp"
                 app:layout_constraintTop_toTopOf="parent" />
         </LinearLayout>

@@ -33,10 +33,12 @@ public class PodcastsDataSource {
 
     private DatabaseReference podcastsRef;
     private List<Podcast> podcasts;
+    private Map<String, Integer> podsOriginalIndices;
     private FirebaseAuth mAuth;
 
     private PodcastsDataSource() {
         podcasts = new ArrayList<>();
+        podsOriginalIndices = new HashMap<>();
         podcastsRef = FirebaseDatabase.getInstance()
                 .getReference(PODCASTS_TABLE_NAME);
         mAuth = FirebaseAuth.getInstance();
@@ -73,10 +75,14 @@ public class PodcastsDataSource {
                         listener.onLoading(dataSnapshot.getChildrenCount());
 
                         podcasts.clear();
-
+                        podsOriginalIndices.clear();
+                        int i = 0;
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Podcast podcast = child.getValue(Podcast.class);
+                            if (podcast == null) break;
+
                             podcasts.add(podcast);
+                            podsOriginalIndices.put(podcast.getId(), i++);
                             listener.onItemLoaded();
                         }
                         listener.onLoaded(podcasts);
@@ -110,7 +116,7 @@ public class PodcastsDataSource {
 
                 PodcastsDataSource.this.podcasts = podcasts;
 
-                podcastsRef.setValue(getPodcastsMap(podcasts))
+                podcastsRef.setValue(podcastsToMap(podcasts))
                         .addOnSuccessListener(c -> listener.onLoaded(podcasts))
                         .addOnFailureListener(listener::onCancelled);
             }
@@ -123,7 +129,7 @@ public class PodcastsDataSource {
     }
 
     @NotNull
-    private Map<String, Podcast> getPodcastsMap(List<Podcast> podcasts) {
+    private Map<String, Podcast> podcastsToMap(List<Podcast> podcasts) {
         Map<String, Podcast> podcastsMap = new HashMap<>();
         for (Podcast p : podcasts) podcastsMap.put(p.getId(), p);
         return podcastsMap;
@@ -162,9 +168,9 @@ public class PodcastsDataSource {
     public List<Podcast> getFavorites(User user) {
         List<Podcast> favs = new ArrayList<>();
         Set<String> favoritesIds = user.getFavoritesIdsSet();
-        Map<String, Podcast> pods = getPodcastsMap(podcasts);
         for (String k : favoritesIds) {
-            Podcast podcast = pods.get(k);
+            Integer index = podsOriginalIndices.get(k);
+            Podcast podcast = podcasts.get(index);
             if (podcast != null)
                 favs.add(podcast);
         }
@@ -176,10 +182,10 @@ public class PodcastsDataSource {
 //        TODO do it
         DatabaseReference pushedCommentsRef = getCommentsRef(podcast).push();
 
-        FirebaseUser user = mAuth.getCurrentUser();
+        User user = UserDataSource.getInstance().getCurrentUser();
 
         String cid = pushedCommentsRef.getKey();
-        Comment comment = new Comment(cid, user.getUid(), user.getEmail(), content);
+        Comment comment = new Comment(cid, content, user);
         pushedCommentsRef.setValue(comment);//return task and add later
         return comment;
     }
@@ -203,5 +209,14 @@ public class PodcastsDataSource {
         Map<String, Object> map = new HashMap<>();
         map.put("content", content);
         return getCommentRef(podcast, comment).updateChildren(map);
+    }
+
+    public int indexOf(Podcast podcast) {
+        return indexOf(podcast.getId());
+    }
+
+    public int indexOf(String podId) {
+        Integer integer = podsOriginalIndices.get(podId);
+        return integer == null ? -1 : integer;
     }
 }

@@ -14,9 +14,11 @@
         android:layout_height="0dp"
         android:scaleType="centerInside"
         android:src="@drawable/logo"
+        android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="logo" />
 
     <TextView
         android:id="@+id/textDescription"
@@ -39,21 +41,22 @@
 
     <ImageButton
         android:id="@+id/btnCloseNotification"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/red_btn"
-        android:padding="4dp"
+        android:padding="2dp"
         android:src="@drawable/ic_close"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:contentDescription="close" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -71,18 +74,35 @@
             android:id="@+id/rewind_30Btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
             android:background="?android:selectableItemBackground"
             android:contentDescription="rewind"
             android:scaleType="fitXY"
             android:tint="@color/colorPrimaryDark"
             app:srcCompat="@drawable/ic_rewind_30" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btnPreviousNotification"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/ic_skip_previous" />
+            android:background="?android:selectableItemBackground"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_skip_previous"
+            android:tint="@color/colorPrimaryDark"
+            android:contentDescription="back" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:indeterminateTint="@color/colorPrimaryDark"
+            android:progressTint="@color/colorPrimaryDark"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <com.wnafee.vector.MorphButton
             android:id="@+id/player_togglePlayBtn"
@@ -93,12 +113,15 @@
             app:vc_foregroundTint="@color/colorPrimaryDark"
             app:vc_startDrawable="@drawable/ic_play_to_pause" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btnNextNotification"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/ic_skip_next" />
+            android:background="?android:selectableItemBackground"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_skip_next"
+            android:tint="@color/colorPrimaryDark" />
 
         <ImageButton
             android:id="@+id/forward_30Btn"

@@ -1,9 +1,13 @@
 package com.erank.koletsionpods.utils.helpers;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 
+import androidx.core.content.ContextCompat;
+
 import com.erank.koletsionpods.R;
+import com.erank.koletsionpods.activities.PlayerActivity;
 import com.erank.koletsionpods.db.models.Podcast;
 
 public class SharingHelper {
@@ -17,9 +21,11 @@ public class SharingHelper {
     }
 
 
-    public Intent getShare(Resources rss,Podcast podcast) {
+    public void share(Context context, Podcast podcast) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
+
+        Resources rss = context.getResources();
 
         String msg = rss.getString(R.string.check_out_pod);
         intent.putExtra(Intent.EXTRA_SUBJECT,
@@ -28,6 +34,7 @@ public class SharingHelper {
                 podcast.getAudioUrl());//"bep://be_podcast" +
         String shareTxt = rss.getString(R.string.share_poscast);
 
-        return Intent.createChooser(intent, shareTxt);
+        Intent i = Intent.createChooser(intent, shareTxt);
+        context.startActivity(i);
     }
 }

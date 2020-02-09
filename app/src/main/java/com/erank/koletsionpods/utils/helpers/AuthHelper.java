@@ -22,6 +22,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.regex.Pattern;
+
 import static com.erank.koletsionpods.activities.LoginSignUpActivity.RC_SIGN_IN;
 
 public class AuthHelper {
@@ -38,7 +40,7 @@ public class AuthHelper {
         return instance != null ? instance : (instance = new AuthHelper());
     }
 
-    public void setAuthSignInClient(Context context) {
+    private void setAuthSignInClient(Context context) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(context.getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -52,9 +54,6 @@ public class AuthHelper {
         return mGoogleSignInClient.getSignInIntent();
     }
 
-    public AuthCredential getCredential(GoogleSignInAccount account) {
-        return GoogleAuthProvider.getCredential(account.getIdToken(), null);
-    }
 
     public Task<AuthResult> checkResult(int requestCode, Intent data) throws ApiException {
         if (requestCode == RC_SIGN_IN) {
@@ -62,27 +61,32 @@ public class AuthHelper {
             // Google Sign In was successful, authenticate with Firebase
             GoogleSignInAccount account = task.getResult(ApiException.class);
             if (account != null) {
-                return mAuth.signInWithCredential(getCredential(account));
+                AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+                return mAuth.signInWithCredential(credential);
             }
         }
         return null;
     }
+
     public void signInUser(String email, String password,
-                                       OnUserDataLoadedListener onUserLoadedListener) {
+                           OnUserDataLoadedListener onUserLoadedListener) {
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(res->{
-                    UserDataSource.getInstance().loadUserData(onUserLoadedListener);
+                .addOnSuccessListener(res -> {
+                    UserDataSource.getInstance()
+                            .loadUserData(onUserLoadedListener);
                 }).addOnFailureListener(onUserLoadedListener::onCancelled);
     }
 
-    public void createUser(String email, String password, OnUserCreatedCallback callback) {
+    public void createUser(String email, String password, String un, OnUserCreatedCallback callback) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> {
                     User user = new User(result.getUser());
+                    user.setName(un);
                     UserDataSource.getInstance().saveUser(user)
-                    .addOnSuccessListener(aVoid -> callback.onLoaded(user))
-                    .addOnFailureListener(callback::onCancelled);
-                });
+                            .addOnSuccessListener(aVoid -> callback.onLoaded(user))
+                            .addOnFailureListener(callback::onCancelled);
+                })
+                .addOnFailureListener(callback::onCancelled);
     }
 
     public void showLoginDialog(Context context) {
@@ -122,5 +126,23 @@ public class AuthHelper {
     public void signOut(Context context) {
         mAuth.signOut();
         openLogin(context);
+    }
+
+    public boolean isUserNameValid(String username) {
+        final String unameRegex = "^[a-z0-9_-]{3,15}$";
+        Pattern pattern = Pattern.compile(unameRegex);
+        return pattern.matcher(username).matches();
+    }
+
+    public boolean isEmailValid(String email) {
+        final String emailRegex = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
+        Pattern pat = Pattern.compile(emailRegex);
+        return pat.matcher(email).matches();
+    }
+
+    public boolean isPasswordValid(String password) {
+        String passRegex = "^(?=.*[0-9]).{6,15}$";
+        Pattern pat = Pattern.compile(passRegex);
+        return pat.matcher(password).matches();
     }
 }

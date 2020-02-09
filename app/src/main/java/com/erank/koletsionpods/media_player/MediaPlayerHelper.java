@@ -3,6 +3,7 @@ package com.erank.koletsionpods.media_player;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 
 import androidx.core.math.MathUtils;
 
@@ -18,7 +19,7 @@ import static android.media.MediaPlayer.OnPreparedListener;
 
 
 public class MediaPlayerHelper
-        implements OnPreparedListener, MediaPlayer.OnErrorListener {
+        implements OnPreparedListener {
 
     private static final String TAG = MediaPlayerHelper.class.getName();
     //singleton
@@ -37,7 +38,9 @@ public class MediaPlayerHelper
 
         onPreparedListeners = new HashMap<>();
 
-        initMp();
+        mp = new MediaPlayer();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mp.setOnPreparedListener(this);
     }
 
     public static MediaPlayerHelper getInstance() {
@@ -47,40 +50,32 @@ public class MediaPlayerHelper
         return instance;
     }
 
-    private void initMp() {
-        mp = new MediaPlayer();
-        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mp.setOnPreparedListener(this);
-        mp.setOnErrorListener(this);
-    }
-
     public void playPodcast(Podcast podcast, int position) {
 
         //if it's the same so just refreshCurrent
-        if (podcast.equals(currentPodcast)) {
-
-            if (!mp.isPlaying()) play();
-            else pause();
-
-            return;
-        }
-//        else - new song
         if (currentPodcast != null) {
-            currentPodcast.state = PodcastState.DEFAULT;
+            if (podcast.getId().equals(currentPodcast.getId())) {
+
+                if (!mp.isPlaying()) play();
+                else pause();
+
+                return;
+            } else currentPodcast.state = PodcastState.DEFAULT;
         }
 
         currentPodcast = podcast;
         currentPosition = position;
 
-        try {
-            mp.reset();
+        mp.reset();
 
-            mp.setDataSource(podcast.getAudioUrl());
-            mp.prepareAsync();
-            podcast.state = PodcastState.LOADING;
-        } catch (IllegalStateException | IOException e) {
-            e.printStackTrace();
-        }
+        new SetDSAsync(mp).execute(podcast.getAudioUrl());
+        podcast.state = PodcastState.LOADING;
+    }
+
+    private Podcast playPodcast(int pos) {
+        Podcast podcast = podDS.getPodcast(pos);
+        playPodcast(podcast, pos);
+        return podcast;
     }
 
     public int getCurrentMiliPosition() {
@@ -88,6 +83,9 @@ public class MediaPlayerHelper
     }
 
     public int getDuration() {
+        if (currentPodcast.isLoading() || currentPodcast.state == PodcastState.DEFAULT)
+            return 0;
+
         return mp.getDuration();
     }
 
@@ -95,12 +93,12 @@ public class MediaPlayerHelper
         mp.seekTo(progress);
     }
 
-    public void addOnPreparedListener(Class c, OnPreparedListener listener) {
-        onPreparedListeners.put(c, listener);
+    public void addOnPreparedListener(OnPreparedListener listener) {
+        onPreparedListeners.put(listener.getClass(), listener);
     }
 
-    public void removeOnPreparedListener(Class cKey) {
-        onPreparedListeners.remove(cKey);
+    public void removeOnPreparedListener(OnPreparedListener listener) {
+        onPreparedListeners.remove(listener.getClass());
     }
 
     @Override
@@ -110,12 +108,6 @@ public class MediaPlayerHelper
         for (OnPreparedListener listener : onPreparedListeners.values()) {
             listener.onPrepared(mp);
         }
-    }
-
-    private Podcast playPodcast(int pos) {
-        Podcast podcast = podDS.getPodcast(pos);
-        playPodcast(podcast, pos);
-        return podcast;
     }
 
     public Podcast playNext() {
@@ -161,14 +153,14 @@ public class MediaPlayerHelper
         return mp.getCurrentPosition();
     }
 
-    public void play() {
+    void play() {
         if (currentPodcast.isPlaySafe()) {
             mp.start();
             currentPodcast.state = PodcastState.PLAYING;
         }
     }
 
-    public void pause() {
+    void pause() {
         PodcastState state = currentPodcast.state;
         if (state == PodcastState.PLAYING) {
             mp.pause();
@@ -176,15 +168,28 @@ public class MediaPlayerHelper
         }
     }
 
-
     public void release() {
         mp.release();
         mp = null;
     }
+}
+
+class SetDSAsync extends AsyncTask<String, Void, Void> {
+
+    private MediaPlayer mp;
+
+    SetDSAsync(MediaPlayer mp) {
+        this.mp = mp;
+    }
 
     @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        mp.reset();
-        return true;
+    protected Void doInBackground(String... urls) {
+        try {
+            mp.setDataSource(urls[0]);
+            mp.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -25,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.erank.koletsionpods.R;
 import com.erank.koletsionpods.adapters.PodcastAdapter;
+import com.erank.koletsionpods.db.PodcastsDataSource;
+import com.erank.koletsionpods.db.UserDataSource;
 import com.erank.koletsionpods.db.models.Podcast;
 import com.erank.koletsionpods.media_player.MediaPlayerHelper;
 import com.erank.koletsionpods.receivers.NotificationActionReceiver;
@@ -32,70 +32,66 @@ import com.erank.koletsionpods.utils.helpers.AuthHelper;
 import com.erank.koletsionpods.utils.helpers.NotificationHelper;
 import com.erank.koletsionpods.utils.listeners.OnPodcastClickListener;
 import com.erank.koletsionpods.utils.listeners.PodcastsNotificationActionCallback;
-import com.erank.koletsionpods.viewmodels.MainActivityViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
-import com.wnafee.vector.MorphButton;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.erank.koletsionpods.utils.helpers.NotificationHelper.EXTRA_NOTIFICATION;
 
-public class MainActivity extends AppCompatActivity
+public class PodcastsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        View.OnClickListener,
         MenuItem.OnActionExpandListener,
         MediaPlayer.OnPreparedListener,
         OnPodcastClickListener,
         SearchView.OnQueryTextListener,
         PodcastsNotificationActionCallback {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = PodcastsActivity.class.getSimpleName();
 
     private Toolbar mToolbar;
-    private DrawerLayout navigationLayout;
+    private DrawerLayout drawer;
     private NavigationView navigationView;
 
     private RecyclerView rvPodcasts;
     private PodcastAdapter adapter;
-    private MorphButton musicBarToggleBtn;
-    private ProgressBar musicBarProgressBar;
-    private View musicBar;
-    private TextView musicBarDesc;
     private TextView emptyView;
 
     private AuthHelper authHelper;
     private MediaPlayerHelper mpHelper;
-    private MainActivityViewModel viewModel;
 
     private NotificationActionReceiver broadcastReceiver =
             new NotificationActionReceiver(this);
     private NotificationHelper notificationHelper;
+    private LinearLayoutManager rvPodcastsLayoutManager;
+
+    private PodcastsDataSource podDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_podcasts);
 
         authHelper = AuthHelper.getInstance();
         mpHelper = MediaPlayerHelper.getInstance();
-        viewModel = MainActivityViewModel.newInstance(this);
         notificationHelper = NotificationHelper.getInstance(this);
 
         findViews();
-        adapter = viewModel.getNewPodcastsAdapter(this);
-        rvPodcasts.setAdapter(adapter);
 
-        musicBar.setOnClickListener(this);
-        musicBarToggleBtn.setOnClickListener(this);
+        podDataSource = PodcastsDataSource.getInstance();
+
+        adapter = new PodcastAdapter(podDataSource.getPodcasts(),this);
+        rvPodcasts.setAdapter(adapter);
+        rvPodcastsLayoutManager = (LinearLayoutManager) rvPodcasts.getLayoutManager();
 
         updateComponents();
 
         registerNotificationReceiver();
-
-        setSupportActionBar(mToolbar);
 
         initDrawer();
 
@@ -107,34 +103,31 @@ public class MainActivity extends AppCompatActivity
 
 //            get data
             int pos = mpHelper.getCurrentPodcastPosition();
-            if (pos==-1)return;
+            if (pos == -1) return;
 
             Podcast podcast = mpHelper.getCurrentPodcast();
             if (podcast == null) return;
-//            call open podcast activity with data
-            openPodcastActivity(podcast, pos);
-//            Toast.makeText(this, podcast.getDescription(), Toast.LENGTH_LONG).show();
+
+            openPlayerActivity(podcast.getId());
         }
     }
 
     private void findViews() {
-        mToolbar = findViewById(R.id.my_toolbar);
-        navigationLayout = findViewById(R.id.drawerLayout);
-        navigationView = findViewById(R.id.navigationDrawer);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
-        rvPodcasts = findViewById(R.id.rvPlayList);
-        musicBar = findViewById(R.id.musicBar);
-        musicBarToggleBtn = findViewById(R.id.musicbar_morphBtn);
-        musicBarDesc = findViewById(R.id.btm_dialog_description);
-        musicBarProgressBar = findViewById(R.id.musicbar_progressbar);
+        navigationView = findViewById(R.id.navigationDrawer);
+        rvPodcasts = findViewById(R.id.rvPodcasts);
         emptyView = findViewById(R.id.emptyView);
     }
 
     private void initDrawer() {
+        drawer = findViewById(R.id.drawerLayout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, navigationLayout, mToolbar,
+                this, drawer, mToolbar,
                 R.string.nav_drawer_open, R.string.nav_drawer_close);
-        navigationLayout.addDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
@@ -163,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         Uri url = user.getPhotoUrl();
         Glide.with(this)
                 .load(url)
-                .placeholder(R.drawable.ic_person_dummy)
+                .placeholder(R.drawable.dog_face)
                 .into(image);
 
         TextView emailTV = headerView.findViewById(R.id.nav_mail);
@@ -171,14 +164,24 @@ public class MainActivity extends AppCompatActivity
         emailTV.setText(email);
         emailTV.setVisibility(email != null ? View.VISIBLE : View.GONE);
 
-        TextView name = headerView.findViewById(R.id.nav_name);
+        TextView nameTv = headerView.findViewById(R.id.nav_name);
         String displayName = user.getDisplayName();
-        if (displayName == null) {
-            name.setVisibility(View.INVISIBLE);
+        if (displayName == null || displayName.isEmpty()) {
+            String name = UserDataSource.getInstance().getCurrentUser().getName();
+            nameTv.setText(name);
         } else {
-            name.setVisibility(View.VISIBLE);
-            name.setText(displayName);
+            nameTv.setText(displayName);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+            return;
+        }
+
+        super.onBackPressed();
     }
 
     @Override
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mpHelper.addOnPreparedListener(getClass(), this);
+        mpHelper.addOnPreparedListener(this);
         registerNotificationReceiver();
     }
 
@@ -210,7 +213,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
-        mpHelper.removeOnPreparedListener(getClass());
+        mpHelper.removeOnPreparedListener(this);
         unregisterReceiver(broadcastReceiver);
     }
 
@@ -223,90 +226,45 @@ public class MainActivity extends AppCompatActivity
 
     private void updateComponents() {
         Podcast podcast = mpHelper.getCurrentPodcast();
-        if (podcast == null) return;
+        int position = mpHelper.getCurrentPodcastPosition();
 
-        viewModel.playingPodcast = podcast;
-        viewModel.playingPodPosition = mpHelper.getCurrentPodcastPosition();
-        updateMusicBar();
+        if (podcast == null || position == -1) return;
 
+        adapter.setPosition(position);
         adapter.refreshCurrent();
 
-        ((LinearLayoutManager) rvPodcasts.getLayoutManager())
-                .scrollToPositionWithOffset(viewModel.playingPodPosition, 30);
+        rvPodcastsLayoutManager.scrollToPositionWithOffset(position, 30);
     }
 
     @Override
     public void onItemClicked(Podcast podcast, int position) {
-        viewModel.setPlayingPodcast(podcast, position);
-        openPodcastActivity(podcast, position);
+        openPlayerActivity(podcast.getId());
     }
 
 
     @Override
-    public void onTogglePlayPause(Podcast podcast, int position,
-                                  MediaPlayer.OnPreparedListener onPreparedListener) {
-
-        viewModel.setPlayingPodcast(podcast, position);
-        viewModel.setOnPreparedListener(onPreparedListener);
-
+    public void onTogglePlayPause(Podcast podcast, int position) {
         mpHelper.playPodcast(podcast, position);
-        boolean isLoading = podcast.isLoading();
-
-        musicBarToggleBtn.setVisibility(isLoading ? INVISIBLE : VISIBLE);
-        musicBarProgressBar.setVisibility(isLoading ? VISIBLE : INVISIBLE);
-
-        updateMusicBar();
-
         notificationHelper.notify(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        if (!viewModel.hasPodcast()) {
-            return;
-        }
-
-        Podcast podcast = viewModel.playingPodcast;
-        int position = viewModel.playingPodPosition;
-
-        switch (v.getId()) {
-            case R.id.musicBar:
-                openPodcastActivity(podcast, position);
-                break;
-            case R.id.musicbar_morphBtn:
-                mpHelper.playPodcast(podcast, position);
-                adapter.refreshCurrent();
-                notificationHelper.notify(this);
-                break;
-        }
-
-    }
-
-    private void openPodcastActivity(Podcast podcast, int position) {
+    private void openPlayerActivity(String podId) {
         Intent intent = new Intent(this, PlayerActivity.class)
-                .putExtra(PlayerActivity.CURRENT_POD_POS, position)
-                .putExtra(PlayerActivity.CURRENT_POD, podcast);
+                .putExtra(PlayerActivity.CURRENT_POD_ID, podId);
 
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_left);
         startActivity(intent);
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if (!viewModel.callOnPreparedIfNeeded(mp)) {
-            return;
-        }
-
-        updateMusicBar();
-        musicBarToggleBtn.setVisibility(VISIBLE);
-        musicBarProgressBar.setVisibility(INVISIBLE);
-
         notificationHelper.notify(this);
+        adapter.refreshCurrent();
     }
 
     @Override
     public boolean onMenuItemActionCollapse(MenuItem item) {
-        viewModel.resetSearch(adapter);
+        adapter.submitList(podDataSource.getPodcasts());
+        adapter.setSearching(false);
         return true;
     }
 
@@ -322,8 +280,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        viewModel.search(newText, adapter, emptyView);
+    public boolean onQueryTextChange(String filter) {
+        if (filter == null || filter.isEmpty()) {
+            adapter.submitList(podDataSource.getPodcasts());
+            emptyView.setVisibility(GONE);
+            return false;
+        }
+        List<Podcast> afterFiler = podDataSource.getPodcastsFiltered(filter);
+
+        adapter.submitList(afterFiler);
+        emptyView.setVisibility(afterFiler.isEmpty() ? VISIBLE : INVISIBLE);
+
         return false;
     }
 
@@ -348,20 +315,6 @@ public class MainActivity extends AppCompatActivity
         updateComponents();
     }
 
-    private void updateMusicBar() {
-        viewModel.updateMusicBar(musicBarDesc, musicBarToggleBtn);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (navigationLayout.isDrawerOpen(GravityCompat.START)) {
-            navigationLayout.closeDrawer(GravityCompat.START);
-            return;
-        }
-
-        super.onBackPressed();
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -375,7 +328,7 @@ public class MainActivity extends AppCompatActivity
                 break;
 
 //            case R.id.nav_share:
-//                Todo add link getShare app
+//                Todo add link share app
 //                break;
 
             case R.id.nav_about:
@@ -386,7 +339,7 @@ public class MainActivity extends AppCompatActivity
                         .show();
                 break;
         }
-        navigationLayout.closeDrawer(GravityCompat.START);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
 //        throw new IllegalArgumentException("No such item on drawer");
     }

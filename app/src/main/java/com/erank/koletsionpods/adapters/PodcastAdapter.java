@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.erank.koletsionpods.R;
+import com.erank.koletsionpods.db.PodcastsDataSource;
 import com.erank.koletsionpods.db.models.Podcast;
 import com.erank.koletsionpods.utils.enums.PodcastState;
 import com.erank.koletsionpods.utils.listeners.OnPodcastClickListener;
@@ -31,24 +32,23 @@ import static android.view.View.VISIBLE;
 
 public class PodcastAdapter extends ListAdapter<Podcast, PodcastAdapter.PodcastHolder> {
 
-    private boolean isRemovable;
-    private int currentHolderPos;
-
     private OnPodcastClickListener listener;
     private boolean isSearching;
+    private boolean isRemovable;
     private int currentHolderPosOriginal;
+    private int currentHolderPos;
 
-    //RV ctor -> used to get the properties that will be inserted into the RV layout.
-    public PodcastAdapter(List<Podcast> podcastList, OnPodcastClickListener listener) {
-        this(podcastList, listener, false);
-    }
-
-    public PodcastAdapter(@NonNull List<Podcast> podcastList,
-                          OnPodcastClickListener listener, boolean isRemovable) {
+    public PodcastAdapter(@NonNull List<Podcast> podcasts,
+                          boolean isRemovable, OnPodcastClickListener listener) {
         super(new PodcastDiffItemCallback());
-        submitList(podcastList);
+        submitList(podcasts);
         this.isRemovable = isRemovable;
         this.listener = listener;
+        currentHolderPos = currentHolderPosOriginal = -1;
+    }
+
+    public PodcastAdapter(List<Podcast> podcastList, OnPodcastClickListener listener) {
+        this(podcastList, false, listener);
     }
 
     //binds the accepted information into the inner class props-> single item props:
@@ -65,8 +65,15 @@ public class PodcastAdapter extends ListAdapter<Podcast, PodcastAdapter.PodcastH
         holder.fill(getItem(position));
     }
 
+    public void setPosition(int position) {
+        currentHolderPos = position;
+    }
+
     public void refreshCurrent() {
-        if (currentHolderPos != -1)
+        if (isSearching) {
+            if (currentHolderPosOriginal != -1)
+                notifyItemChanged(currentHolderPosOriginal);
+        } else if (currentHolderPos != -1)
             notifyItemChanged(currentHolderPos);
     }
 
@@ -76,7 +83,7 @@ public class PodcastAdapter extends ListAdapter<Podcast, PodcastAdapter.PodcastH
 
     @Override
     public void submitList(@Nullable List<Podcast> list) {
-        if (isSearching) {
+        if (list!=null && isSearching) {
             if (currentHolderPosOriginal == -1)
                 currentHolderPosOriginal = currentHolderPos;
 
@@ -127,7 +134,7 @@ public class PodcastAdapter extends ListAdapter<Podcast, PodcastAdapter.PodcastH
         }
 
         void fill(Podcast podcast) {
-            int i = getAdapterPosition();
+            int i = !isSearching ? getAdapterPosition() : PodcastsDataSource.getInstance().indexOf(podcast);
             itemView.setOnClickListener(v -> listener.onItemClicked(podcast, i));
 
             if (isRemovable)
@@ -160,7 +167,7 @@ public class PodcastAdapter extends ListAdapter<Podcast, PodcastAdapter.PodcastH
         }
 
         private void toggle(Podcast podcast) {
-            listener.onTogglePlayPause(podcast, getAdapterPosition(), mp -> setLook(podcast));
+            listener.onTogglePlayPause(podcast, getAdapterPosition());
 
             if (currentHolderPos != -1 && podcast.isLoading()) {
                 notifyItemChanged(currentHolderPos);

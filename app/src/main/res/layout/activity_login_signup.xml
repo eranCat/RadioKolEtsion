@@ -56,6 +56,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="16dp"
+        android:animateLayoutChanges="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
@@ -68,7 +69,7 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/edittext_shape"
             android:ems="10"
-            android:hint="Email..."
+            android:hint="Email"
             android:inputType="textEmailAddress"
             android:padding="8dp" />
 
@@ -79,11 +80,42 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/edittext_shape"
             android:ems="10"
-            android:hint="Password..."
+            android:hint="Password"
             android:imeOptions="actionDone|actionGo|actionSend"
-            android:inputType="textPassword"
+            android:inputType="textNoSuggestions|textPassword"
             android:padding="8dp" />
 
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/edittext_shape"
+                android:ems="10"
+                android:hint="Select a username"
+                android:inputType="textEmailAddress"
+                android:padding="8dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/pb_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/progressBarStyleSmallTitle"
+                android:layout_alignTop="@id/et_username"
+                android:layout_alignEnd="@id/et_username"
+                android:layout_alignBottom="@id/et_username"
+                android:layout_marginEnd="16dp"
+                android:progressTint="#43A047"
+                android:visibility="invisible"
+                tools:visibility="visible" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -140,16 +172,6 @@
             android:text="@string/signin_with_google"
             android:textAlignment="center"
             app:buttonSize="wide" />
-
-
-        <Button
-            android:id="@+id/fb_login_btn"
-            style="@style/FirebaseUI.Button.AccountChooser.FacebookButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/signin_with_facebook"
-            android:textAlignment="center"
-            android:visibility="gone" />
 
 
         <Button

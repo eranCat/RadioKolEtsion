@@ -1,13 +1,11 @@
 package com.erank.koletsionpods.activities;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -23,25 +21,34 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.erank.koletsionpods.R;
+import com.erank.koletsionpods.adapters.CommentsAdapter;
+import com.erank.koletsionpods.db.PodcastsDataSource;
+import com.erank.koletsionpods.db.UserDataSource;
 import com.erank.koletsionpods.db.models.Comment;
 import com.erank.koletsionpods.db.models.Podcast;
 import com.erank.koletsionpods.media_player.MediaPlayerHelper;
 import com.erank.koletsionpods.receivers.NotificationActionReceiver;
-import com.erank.koletsionpods.utils.helpers.AuthHelper;
 import com.erank.koletsionpods.utils.ErrorDialog;
+import com.erank.koletsionpods.utils.helpers.AuthHelper;
 import com.erank.koletsionpods.utils.helpers.NotificationHelper;
+import com.erank.koletsionpods.utils.helpers.SharingHelper;
 import com.erank.koletsionpods.utils.helpers.SoundHelper;
 import com.erank.koletsionpods.utils.listeners.NotificationActionCallback;
 import com.erank.koletsionpods.utils.listeners.OnCommentClickCallback;
 import com.erank.koletsionpods.utils.listeners.OnSeekBarChangeListenerAdapter;
 import com.erank.koletsionpods.utils.listeners.OnTextChangedAdapter;
-import com.erank.koletsionpods.viewmodels.MusicFragmentVModel;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.wnafee.vector.MorphButton;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -55,36 +62,40 @@ public class PlayerActivity extends AppCompatActivity
         implements OnClickListener, OnCommentClickCallback,
         MediaPlayer.OnPreparedListener, NotificationActionCallback {
 
-    //    from arguments - ctor
-
-    public static final String CURRENT_POD_POS = "currentPodcastPos";
-    public static final String CURRENT_POD = "currentPodcast";
-    private static final int SEEKBAR_REFRESH_RATE = 1_000;
+    public static final String CURRENT_POD_ID = "currentPodcastId";
+    private final int SEEKBAR_REFRESH_RATE = 1_000;
     private MediaPlayerHelper mpHolder;
-    //    from layout
+    private SoundHelper soundHelper;
+    private AuthHelper authHelper;
+    private UserDataSource usersDataBase;
+    private PodcastsDataSource podcastsDS;
+
     private ProgressBar playerPb, commentsPb;
     private TextView currentTime, sumTime;
     private SeekBar timeSeekbar;
-    private Handler mSeekbarUpdateHandler;
-    private Runnable mUpdateSeekbar;
+    private SeekBar seekbarVolume;
     private MorphButton playPauseBtn;
     private View descriptionBox;
     private TextView contentTv, dateTv, playlistCountTv, likeAmountTv;
     private ImageView favoriteBtn, likeBtn;
     private boolean isFavorite, isLiked;
-    private SeekBar seekbarVolume;
-    private MusicFragmentVModel viewModel;
-    private SoundHelper soundHelper;
-    private AuthHelper authHelper;
     private EditText commentET;
-    private RecyclerView commentsRv;
-    private Comment editingComment;
+
     private int editingCommentPos;
+    private RecyclerView commentsRv;
+    private CommentsAdapter commentsAdapter;
+    private Comment editingComment;
+
+    private FirebaseUser user;
+
+    private Handler mSeekbarUpdateHandler;
+    private Runnable mUpdateSeekbar;
 
     private NotificationActionReceiver broadcastReceiver =
             new NotificationActionReceiver(this);
     private NotificationHelper notificationHelper;
-
+    private Podcast currentPodcast;
+    private int currentPos;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,17 +103,21 @@ public class PlayerActivity extends AppCompatActivity
         setContentView(R.layout.activity_player);
 
         mpHolder = MediaPlayerHelper.getInstance();
-        mpHolder.addOnPreparedListener(getClass(), this);
 
-        viewModel = MusicFragmentVModel.newInstance(this);
+        usersDataBase = UserDataSource.getInstance();
+        podcastsDS = PodcastsDataSource.getInstance();
         soundHelper = SoundHelper.getInstance(this);
         authHelper = AuthHelper.getInstance();
         notificationHelper = NotificationHelper.getInstance(this);
+        user = authHelper.getCurrentUser();
 
-        Intent intent = getIntent();
-        int pos = intent.getIntExtra(CURRENT_POD_POS, -1);
-        Podcast podcast = intent.getParcelableExtra(CURRENT_POD);
-        viewModel.setPodcastFromArgs(podcast, pos);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        String podId = getIntent().getStringExtra(CURRENT_POD_ID);
+        currentPos = podcastsDS.indexOf(podId);
+        currentPodcast = podcastsDS.getPodcast(currentPos);
 
         editingComment = null;
         editingCommentPos = -1;
@@ -110,15 +125,21 @@ public class PlayerActivity extends AppCompatActivity
         findViews();
         setupVolumeSeekbar();
 
-        if (!viewModel.arePodcastsTheSame(mpHolder)) {
-            viewModel.playPodcast(mpHolder);
+        if (!currentPodcast.equals(mpHolder.getCurrentPodcast())) {
+            mpHolder.playPodcast(currentPodcast, currentPos);
             notificationHelper.notify(this);
-        } else {
+        } else if (!currentPodcast.isLoading()) {
             initProgress();
         }
         fillData();
 
         registerReceiver(broadcastReceiver, broadcastReceiver.getIntentFilter());
+    }
+
+    @Override
+    public boolean onNavigateUp() {
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        return super.onNavigateUp();
     }
 
     private void setFavorite() {
@@ -146,6 +167,8 @@ public class PlayerActivity extends AppCompatActivity
 
     private void findViews() {
 
+        findViewById(R.id.constraintLayout).setOnClickListener(v-> dismissKeyboard());
+
         timeSeekbar = findViewById(R.id.seekBar);
         seekbarVolume = findViewById(R.id.seekBar_volume);
         playPauseBtn = findViewById(R.id.player_togglePlayBtn);
@@ -164,7 +187,9 @@ public class PlayerActivity extends AppCompatActivity
         favoriteBtn = findViewById(R.id.favoriteBtn);
 
         commentsRv = findViewById(R.id.comments_rv);
-        viewModel.setCommentsAdapter(commentsRv, this);
+        commentsAdapter = new CommentsAdapter(currentPodcast.getCommentsList());
+        commentsAdapter.setCallback(this);
+        commentsRv.setAdapter(commentsAdapter);
 
         commentET = findViewById(R.id.comment_et);
         ImageButton commentBtn = findViewById(R.id.comment_btn);
@@ -201,19 +226,19 @@ public class PlayerActivity extends AppCompatActivity
         commentET.setText(null);
         commentET.setError(null);
 
-        if (!viewModel.isUserLogged()) {
+        if (!isUserLogged()) {
             authHelper.showLoginDialog(this);
             return;
         }
 
         if (editingCommentPos == -1 || editingComment == null) {
-            int lastIndex = viewModel.postComment(commentContent);
+            int lastIndex = postComment(commentContent);
             commentsRv.scrollToPosition(lastIndex);
             return;
         }
 
         showProgress();
-        viewModel.updateComment(editingComment, editingCommentPos, commentContent)
+        updateComment(editingComment, editingCommentPos, commentContent)
                 .addOnFailureListener(e -> ErrorDialog.showError(this, e))
                 .addOnSuccessListener(aVoid -> editingComment.setContent(commentContent))
                 .addOnCompleteListener(task -> {
@@ -223,34 +248,63 @@ public class PlayerActivity extends AppCompatActivity
                 });
     }
 
+    public int postComment(String commentContent) {
+        Comment comment = podcastsDS.commentOnPost(commentContent, currentPodcast);
+        currentPodcast.addComment(comment);
+        int lastIndex = currentPodcast.getCommentsList().size() - 1;
+        commentsAdapter.submitList(currentPodcast.getCommentsList());
+        commentsAdapter.notifyItemInserted(lastIndex);
+        return lastIndex;
+    }
+
+    public Task<Void> updateComment(Comment comment, int pos, String content) {
+        return podcastsDS.updateComment(currentPodcast, comment, content)
+                .addOnSuccessListener(v -> commentsAdapter.notifyItemChanged(pos));
+    }
+
+    public Task<Void> remove(Comment comment, int pos) {
+        return podcastsDS
+                .removeComment(currentPodcast, comment)
+                .addOnSuccessListener(aVoid -> {
+                    currentPodcast.removeComment(comment);
+                    commentsAdapter.submitList(currentPodcast.getCommentsList());
+                    commentsAdapter.notifyItemRemoved(pos);
+                });
+    }
+
+    private boolean isUserLogged() {
+        return authHelper.isUserLogged(false);
+    }
+
+
     private void fillData() {
 
-        boolean isLoading = viewModel.isPodcastLoading();
+        boolean isLoading = currentPodcast.isLoading();
         playPauseBtn.setVisibility(isLoading ? GONE : VISIBLE);
         playerPb.setVisibility(isLoading ? VISIBLE : GONE);
 
         togglePlayPauseView();
+        contentTv.setText(currentPodcast.getDescription());
 
-        Podcast podcast = viewModel.currentPodcast;
-        contentTv.setText(podcast.getDescription());
-        playlistCountTv.setText(viewModel.getPodPositionString());
-        dateTv.setText(viewModel.getPodcastDateString());
-        likeAmountTv.setText(String.valueOf(viewModel.getPodLikesAmount()));
+        int size = podcastsDS.getPodcastsSize();
+        playlistCountTv.setText(String.format("%s/%s", currentPos + 1, size));
 
-        setTitle(podcast.getDescription());
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.FULL);
+        dateTv.setText(format.format(currentPodcast.getDate()));
 
-        if (descriptionBox.isAttachedToWindow())
-            circleContentTv();
+        likeAmountTv.setText(String.valueOf(currentPodcast.getLikesAmount()));
 
-        isFavorite = viewModel.isUsersFavorite();
+        setTitle(currentPodcast.getDescription());
+
+        isFavorite = usersDataBase.isFavoritePodcast(currentPodcast);
         setFavorite();
 
-        isLiked = viewModel.doesUserLikePodcast();
+        isLiked = currentPodcast.getLikedUIDs().contains(user.getUid());
         setLike();
     }
 
     private void togglePlayPauseView() {
-        playPauseBtn.setState(viewModel.isPodcastPlaying() ? END : START, true);
+        playPauseBtn.setState(currentPodcast.isPlaying() ? END : START, true);
     }
 
     private void updateCurrentTime() {
@@ -275,29 +329,26 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        mpHolder.removeOnPreparedListener(getClass());
-        this.unregisterReceiver(broadcastReceiver);
+    public void onStart() {
+        super.onStart();
+        mpHolder.addOnPreparedListener(this);
+        registerReceiver(broadcastReceiver, broadcastReceiver.getIntentFilter());
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mpHolder.addOnPreparedListener(getClass(), this);
-        this.registerReceiver(broadcastReceiver,
-                broadcastReceiver.getIntentFilter());
+    public void onStop() {
+        super.onStop();
+        mpHolder.removeOnPreparedListener(this);
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        fillData();
         initProgress();
-        Context context = this;
-        if (context == null) {
-            return;
-        }
-        notificationHelper.notify(context);
+        togglePlayPauseView();
+        playerPb.setVisibility(GONE);
+        playPauseBtn.setVisibility(VISIBLE);
+        notificationHelper.notify(this);
     }
 
     private void initProgress() {
@@ -306,7 +357,6 @@ public class PlayerActivity extends AppCompatActivity
 
         mSeekbarUpdateHandler = new Handler();
         mSeekbarUpdateHandler.postDelayed(mUpdateSeekbar, SEEKBAR_REFRESH_RATE);
-
 
         mUpdateSeekbar = new Runnable() {
             @Override
@@ -328,9 +378,6 @@ public class PlayerActivity extends AppCompatActivity
                 });
 
         sumTime.setText(durationToTime(duration));
-
-        playerPb.setVisibility(GONE);
-        playPauseBtn.setVisibility(VISIBLE);
     }
 
     private void dismissKeyboard() {
@@ -357,29 +404,19 @@ public class PlayerActivity extends AppCompatActivity
         return String.format(locDef, "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    private void circleContentTv() {
-
-        // get the center for the clipping circle
-        int cx = descriptionBox.getWidth() / 2;
-        int cy = descriptionBox.getHeight() / 2;
-
-        // get the final radius for the clipping circle
-        float finalRadius = (float) Math.hypot(cx, cy);
-
-        // create the animator for this view (the start radius is zero)
-        Animator anim = ViewAnimationUtils.createCircularReveal(descriptionBox, cx, cy,
-                0f, finalRadius);
-        anim.start();
-    }
 
     private void playNext() {
-        viewModel.playNext(mpHolder);
+        currentPodcast = mpHolder.playNext();
+        currentPos = mpHolder.getCurrentPodcastPosition();
         fillData();
+        notificationHelper.notify(this);
     }
 
     private void playPrevious() {
-        viewModel.playPrevious(mpHolder);
+        currentPodcast = mpHolder.playPrevious();
+        currentPos = mpHolder.getCurrentPodcastPosition();
         fillData();
+        notificationHelper.notify(this);
     }
 
     private void seekBy(int seconds) {
@@ -396,17 +433,15 @@ public class PlayerActivity extends AppCompatActivity
 
         switch (v.getId()) {
             case R.id.player_togglePlayBtn:
-                viewModel.playPodcast(mpHolder);
+                mpHolder.playPodcast(currentPodcast, currentPos);
                 notificationHelper.notify(this);
                 break;
 
             case R.id.previousBtn:
                 playPrevious();
-                notificationHelper.notify(this);
                 break;
             case R.id.nextBtn:
                 playNext();
-                notificationHelper.notify(this);
                 break;
 
             case R.id.rewind_30Btn:
@@ -424,7 +459,7 @@ public class PlayerActivity extends AppCompatActivity
                 break;
 
             case R.id.ivBtnLike:
-                if (viewModel.isUserLogged()) {
+                if (isUserLogged()) {
                     toggleHeart();
                 } else {
                     authHelper.showLoginDialog(this);
@@ -433,7 +468,7 @@ public class PlayerActivity extends AppCompatActivity
 
             case R.id.favoriteBtn:
                 //if a guest
-                if (viewModel.isUserLogged()) {
+                if (isUserLogged()) {
                     toggleStar();
                 } else {
                     authHelper.showLoginDialog(this);
@@ -441,7 +476,8 @@ public class PlayerActivity extends AppCompatActivity
                 break;
 
             case R.id.shareBtn:
-                startActivity(viewModel.getShareIntent(getResources()));
+                SharingHelper.getInstance()
+                        .share(this, currentPodcast);
                 break;
 
             case R.id.comment_btn:
@@ -452,6 +488,7 @@ public class PlayerActivity extends AppCompatActivity
         }
     }
 
+
     private void toggleHeart() {
         toggleView(likeBtn, isLiked,
                 R.drawable.ic_heart_on,
@@ -460,15 +497,15 @@ public class PlayerActivity extends AppCompatActivity
         likeBtn.setOnClickListener(null);
         isLiked = !isLiked;
 
-        viewModel.updateLike(isLiked)
+        podcastsDS.updateLike(isLiked, currentPodcast, user)
                 .addOnCompleteListener(task -> likeBtn.setOnClickListener(this))
                 .addOnFailureListener(e -> {
-                    long podLikes = viewModel.getPodLikesAmount();
+                    long podLikes = currentPodcast.getLikesAmount();
                     likeAmountTv.setText(String.valueOf(podLikes));
                     isLiked = !isLiked;
                 });
 
-        long podLikes = viewModel.getPodLikesAmount();
+        long podLikes = currentPodcast.getLikesAmount();
         if (isLiked) podLikes++;
         else podLikes--;
 
@@ -481,8 +518,7 @@ public class PlayerActivity extends AppCompatActivity
                 R.drawable.ic_star_off);
 
         favoriteBtn.setOnClickListener(null);
-
-        viewModel.updateFavorite(!isFavorite)
+        usersDataBase.updateFavorite(!isFavorite, currentPodcast)
                 .addOnCompleteListener(task -> favoriteBtn.setOnClickListener(this))
                 .addOnSuccessListener(aVoid -> {
                     isFavorite = !isFavorite;
@@ -499,15 +535,24 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void onItemClicked(Comment comment, int pos) {
-        toast(String.format("%s %s", comment.getUserEmail(), comment.getContent()));
+        toast(String.format("%s %s", comment.getUserName(), comment.getContent()));
     }
 
     @Override
     public void onRemoveClicked(Comment comment, int pos) {
-        showProgress();
-        viewModel.remove(comment, pos)
-                .addOnCompleteListener(task -> hideProgress())
-                .addOnFailureListener(e -> ErrorDialog.showError(this, e));
+
+        new AlertDialog.Builder(this)
+                .setMessage("Are you sure you want to delete this comment?")
+                .setPositiveButton("sure", (d, w) -> {
+
+                    showProgress();
+                    remove(comment, pos)
+                            .addOnCompleteListener(task -> hideProgress())
+                            .addOnFailureListener(e -> ErrorDialog.showError(this, e));
+                })
+                .setNegativeButton("oops, nope", null)
+                .show();
+
     }
 
 

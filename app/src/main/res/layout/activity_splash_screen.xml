@@ -9,22 +9,22 @@
     tools:context=".activities.SplashScreenActivity">
 
     <ImageView
-        android:id="@+id/Image"
+        android:id="@+id/splashImg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:scaleType="fitCenter"
         android:src="@drawable/logo"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/splash_loadingBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="logo" />
 
     <ProgressBar
         android:id="@+id/splash_loadingBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -33,7 +33,7 @@
         android:elevation="8dp"
         android:max="100"
         android:progress="0"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:progressTint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

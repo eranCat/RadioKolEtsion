@@ -16,14 +16,16 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDataSource {
 
     private static final String USERS_TABLE_NAME = "users";
+    private static final String TAKEN_USERNAMES_TABLE = "takenNames";
 
     private static UserDataSource instance;
-    private DatabaseReference usersRef;
+    private DatabaseReference usersRef, takenUNamesRef;
     private FirebaseAuth mAuth;
     private List<Podcast> favorites;
     private User currentUser;
@@ -32,6 +34,8 @@ public class UserDataSource {
         mAuth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         usersRef = database.getReference(USERS_TABLE_NAME);
+        takenUNamesRef = database.getReference(TAKEN_USERNAMES_TABLE);
+        favorites = new ArrayList<>();
     }
 
     public static UserDataSource getInstance() {
@@ -45,7 +49,7 @@ public class UserDataSource {
             return;
         }
 
-        if (fbUser.isAnonymous()){
+        if (fbUser.isAnonymous()) {
             listener.onLoaded(currentUser = new User(fbUser));
             return;
         }
@@ -77,11 +81,10 @@ public class UserDataSource {
         return favorites;
     }
 
-    public Task<Void> updateFavorite(boolean isFavorite, Podcast podcast, FirebaseUser user) {
+    public Task<Void> updateFavorite(boolean isFavorite, Podcast podcast) {
 
         String podcastId = podcast.getId();
-        return usersRef.child(user.getUid())
-                .child("favorites").child(podcastId)
+        return getFavoritesRef().child(podcastId)
                 .setValue(isFavorite ? true : null)
                 .addOnSuccessListener(aVoid -> {
                     if (isFavorite) {
@@ -94,11 +97,16 @@ public class UserDataSource {
                 });
     }
 
+    private DatabaseReference getFavoritesRef() {
+        return usersRef.child(currentUser.getId()).child("favorites");
+    }
+
     public Task<Void> removeUserPodcastFromFavorites(int position) {
         String podId = favorites.get(position).getId();
-        return usersRef.child(currentUser.getId())
-                .child("favorites").child(podId)
-                .setValue(null).addOnCompleteListener(task -> {
+
+        return getFavoritesRef().child(podId)
+                .setValue(null)
+                .addOnCompleteListener(task -> {
                     currentUser.removeFavorite(podId);
                     favorites.remove(position);
                 });
@@ -108,13 +116,11 @@ public class UserDataSource {
         return currentUser;
     }
 
-    public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
-    }
-
     public Task<Void> saveUser(User user) {
+        takenUNamesRef.child(user.getName()).setValue(true);
+
         return usersRef.child(user.getId()).setValue(user)
-        .addOnSuccessListener(aVoid -> setCurrentUser(user));
+                .addOnSuccessListener(aVoid -> currentUser = user);
     }
 
     public Task<Void> saveUser(FirebaseUser user) {
@@ -123,5 +129,9 @@ public class UserDataSource {
 
     public boolean isFavoritePodcast(Podcast podcast) {
         return currentUser.isFavoritePodcast(podcast);
+    }
+
+    public DatabaseReference getTakenNamesRef() {
+        return takenUNamesRef;
     }
 }

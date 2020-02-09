@@ -30,7 +30,6 @@
     <string name="music">Music</string>
     <string name="non_playing">No media currently playing</string>
     <string name="signout">Sign out</string>
-    <string name="no_internet">Internet Missing</string>
     <string name="no_internet_conn">No internet connection</string>
     <string name="ok">OK</string>
     <string name="try_again">Try again</string>
@@ -69,5 +68,6 @@
     <string name="errorPosBtn">oh, OK</string>
     <string name="favorites">My favorite podcasts</string>
     <string name="comment_something">Comment something …</string>
+    <string name="close">Close</string>
 
 </resources>

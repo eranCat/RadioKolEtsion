@@ -30,14 +30,14 @@ public class NotificationActionService extends Service
         deletionReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(NOTIFICATION_DELETED_ACTION))
+                if (NOTIFICATION_DELETED_ACTION.equals(intent.getAction()))
                     stopSelf();
             }
         };
 
         mediaPlayerHelper = MediaPlayerHelper.getInstance();
         notificationHelper = NotificationHelper.getInstance(this);
-        mediaPlayerHelper.addOnPreparedListener(getClass(), this);
+        mediaPlayerHelper.addOnPreparedListener(this);
     }
 
     @Nullable
@@ -60,9 +60,9 @@ public class NotificationActionService extends Service
         unregisterReceiver(receiver);
         unregisterReceiver(deletionReceiver);
         mediaPlayerHelper.pause();
-        mediaPlayerHelper.removeOnPreparedListener(getClass());
-        notificationHelper.cancelAll();
+        mediaPlayerHelper.removeOnPreparedListener(this);
     }
+
 
     @Override
     public void onNotificationPlay() {
@@ -76,23 +76,14 @@ public class NotificationActionService extends Service
         refreshNotification();
     }
 
-    private void printStackTrace() {
-        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement element : trace) {
-            System.out.println(element);
-        }
-    }
-
     @Override
     public void onNotificationNext() {
-        printStackTrace();
         mediaPlayerHelper.playNext();
         refreshNotification();
     }
 
     @Override
     public void onNotificationPrevious() {
-        printStackTrace();
         mediaPlayerHelper.playPrevious();
         refreshNotification();
     }

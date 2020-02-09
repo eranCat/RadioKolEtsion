@@ -1,10 +1,8 @@
 package com.erank.koletsionpods.utils.helpers;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.DrawableRes;
@@ -22,7 +21,6 @@ import androidx.media.app.NotificationCompat;
 
 import com.erank.koletsionpods.AppManager;
 import com.erank.koletsionpods.R;
-import com.erank.koletsionpods.activities.MainActivity;
 import com.erank.koletsionpods.activities.SplashScreenActivity;
 import com.erank.koletsionpods.db.models.Podcast;
 import com.erank.koletsionpods.media_player.MediaPlayerHelper;
@@ -53,6 +51,8 @@ public class NotificationHelper {
     private NotificationCompat.MediaStyle mediaStyle;
     private int tintColor;
     private Bitmap artwork;
+
+    private boolean isPriorNougatVersion;
 
     private NotificationHelper(Context context) {
         notificationManager = NotificationManagerCompat.from(context);
