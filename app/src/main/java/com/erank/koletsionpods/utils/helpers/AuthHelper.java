@@ -114,7 +114,9 @@ public class AuthHelper {
     }
 
     public Task<AuthResult> signInAnonymously() {
-        return mAuth.signInAnonymously();
+        return mAuth.signInAnonymously()
+                .addOnSuccessListener((result) -> UserDataSource.getInstance()
+                        .setCurrentUser(new User(result.getUser())));
     }
 
     public void openLogin(Context context) {

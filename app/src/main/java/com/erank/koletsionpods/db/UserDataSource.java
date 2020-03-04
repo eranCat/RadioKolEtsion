@@ -134,4 +134,8 @@ public class UserDataSource {
     public DatabaseReference getTakenNamesRef() {
         return takenUNamesRef;
     }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
 }

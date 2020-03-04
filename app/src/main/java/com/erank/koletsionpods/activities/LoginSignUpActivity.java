@@ -194,7 +194,7 @@ public class LoginSignUpActivity extends AppCompatActivity implements View.OnCli
 
     private void signInAnonymous() {
         setProgressBarVisible(true);
-        mAuth.signInAnonymously()
+        authHelper.signInAnonymously()
                 .addOnSuccessListener(authResult -> {
                     startMainActivity(authResult.getUser().getUid());
                     setProgressBarVisible(false);
