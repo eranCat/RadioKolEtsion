@@ -96,9 +96,13 @@ public class PodcastsDataSource {
     }
 
     public void setPodcastsEditable(String uid) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user.isAnonymous())return;
+
+        boolean isAdmin = user.getEmail().equals("eranka12@gmail.com");
         for (Podcast podcast : podcasts) {
             for (Comment comment : podcast.getCommentsList()) {
-                comment.setEditable(comment.getUid().equals(uid));
+                comment.setEditable(isAdmin || comment.getUid().equals(uid));
             }
         }
     }
@@ -116,7 +120,7 @@ public class PodcastsDataSource {
 
                 PodcastsDataSource.this.podcasts = podcasts;
 
-                podcastsRef.setValue(podcastsToMap(podcasts))
+                podcastsRef.updateChildren(podcastsToMap(podcasts))
                         .addOnSuccessListener(c -> listener.onLoaded(podcasts))
                         .addOnFailureListener(listener::onCancelled);
             }
@@ -129,9 +133,12 @@ public class PodcastsDataSource {
     }
 
     @NotNull
-    private Map<String, Podcast> podcastsToMap(List<Podcast> podcasts) {
-        Map<String, Podcast> podcastsMap = new HashMap<>();
-        for (Podcast p : podcasts) podcastsMap.put(p.getId(), p);
+    private Map<String, Object> podcastsToMap(List<Podcast> podcasts) {
+        Map<String, Object> podcastsMap = new HashMap<>();
+        for (Podcast p : podcasts) {
+//            podcastsMap.put(p.getId(), p);
+            podcastsMap.put(p.getId(),p.toMap());
+        }
         return podcastsMap;
     }
 

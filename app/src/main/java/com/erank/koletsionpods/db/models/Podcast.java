@@ -194,6 +194,17 @@ public class Podcast {
         return state == PodcastState.PREPARED;
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("id",id);
+        map.put("description",description);
+        map.put("audioUrl",audioUrl);
+        map.put("date",date);
+
+        return map;
+    }
+
     public static class NameComparator implements Comparator<Podcast> {
         @Override
         public int compare(Podcast podcast1, Podcast podcast2) {

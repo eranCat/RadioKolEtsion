@@ -72,9 +72,9 @@ public class SplashScreenActivity extends AppCompatActivity
             return;
         }
 
-
         podcastsDataSource = PodcastsDataSource.getInstance();
         podcastsDataSource.loadPodcastsFromFB(this);
+//        loadFromJson();
     }
 
     private void loadFromJson() {
