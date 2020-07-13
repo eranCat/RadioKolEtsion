@@ -34,28 +34,26 @@ public class PodcastsDataSource {
     private DatabaseReference podcastsRef;
     private List<Podcast> podcasts;
     private Map<String, Integer> podsOriginalIndices;
-    private FirebaseAuth mAuth;
 
     private PodcastsDataSource() {
         podcasts = new ArrayList<>();
         podsOriginalIndices = new HashMap<>();
         podcastsRef = FirebaseDatabase.getInstance()
                 .getReference(PODCASTS_TABLE_NAME);
-        mAuth = FirebaseAuth.getInstance();
     }
 
     public static PodcastsDataSource getInstance() {
         return instance != null ? instance : (instance = new PodcastsDataSource());
     }
 
-    public Task<Void> updateLike(boolean isLiked, Podcast podcast, FirebaseUser user) {
+    public Task<Void> updateLike(boolean hasLike, Podcast podcast, FirebaseUser user) {
         //TODO optional add listener for like updates
         String uid = user.getUid();
         return podcastsRef.child(podcast.getId())
                 .child("likes")
-                .child(uid).setValue(isLiked ? true : null)
+                .child(uid).setValue(hasLike ? true : null)
                 .addOnSuccessListener(command -> {
-                    if (isLiked) {
+                    if (hasLike) {
                         podcast.addLike(uid);
                     } else {
                         podcast.removeLike(uid);
@@ -79,7 +77,7 @@ public class PodcastsDataSource {
                         int i = 0;
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Podcast podcast = child.getValue(Podcast.class);
-                            if (podcast == null) break;
+                            if (podcast == null) continue;
 
                             podcasts.add(podcast);
                             podsOriginalIndices.put(podcast.getId(), i++);

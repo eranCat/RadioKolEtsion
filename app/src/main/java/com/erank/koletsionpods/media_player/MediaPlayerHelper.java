@@ -173,23 +173,3 @@ public class MediaPlayerHelper
         mp = null;
     }
 }
-
-class SetDSAsync extends AsyncTask<String, Void, Void> {
-
-    private MediaPlayer mp;
-
-    SetDSAsync(MediaPlayer mp) {
-        this.mp = mp;
-    }
-
-    @Override
-    protected Void doInBackground(String... urls) {
-        try {
-            mp.setDataSource(urls[0]);
-            mp.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-}

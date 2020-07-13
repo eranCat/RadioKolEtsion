@@ -23,20 +23,23 @@ public class Podcast {
     @Exclude
     public PodcastState state;
     private String id;
-    private String description;
-    private String audioUrl;
+    @PropertyName("vodName")
+    public String description;
+    @PropertyName("filePath")
+    public String audioUrl;
+    private String defaultStream;
+    @Exclude
     private Date date;
+    public long duration;
     @Exclude
     private Set<String> likedUserIds;
     @Exclude
     private List<Comment> comments;
-
     public Podcast() {
         likedUserIds = new HashSet<>();
         comments = new ArrayList<>();
         state = PodcastState.DEFAULT;
     }
-
     public Podcast(JSONObject podcast, String baseHttp) throws JSONException {
         this();
 //                id of the podcast
@@ -52,6 +55,14 @@ public class Podcast {
 
         String filepath = podcast.getString("filePath");
         audioUrl = baseHttp + filepath;
+    }
+
+    public String getDefaultStream() {
+        return defaultStream;
+    }
+
+    public void setDefaultStream(String defaultStream) {
+        this.defaultStream = defaultStream;
     }
 
     @Exclude
@@ -85,7 +96,7 @@ public class Podcast {
     }
 
     @PropertyName("likes")
-    public void setlikedUserIds(Map<String, Boolean> likedUserIds) {
+    public void setLikedUserIds(Map<String, Boolean> likedUserIds) {
         this.likedUserIds = new HashSet<>(likedUserIds.keySet());
     }
 
@@ -116,6 +127,12 @@ public class Podcast {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Long getCreationDate(){return date.getTime();}
+
+    public void setCreationDate(Long timeStamp) {
+        this.date = new Date(timeStamp);
     }
 
     @Exclude
@@ -197,10 +214,10 @@ public class Podcast {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("id",id);
-        map.put("description",description);
-        map.put("audioUrl",audioUrl);
-        map.put("date",date);
+        map.put("id", id);
+        map.put("description", description);
+        map.put("audioUrl", audioUrl);
+        map.put("date", date);
 
         return map;
     }
@@ -214,7 +231,7 @@ public class Podcast {
         }
     }
 
-    public static class LikesComperator implements Comparator<Podcast> {
+    public static class LikesComparator implements Comparator<Podcast> {
         @Override
         public int compare(Podcast o1, Podcast o2) {
             return o1.likedUserIds.size() - o2.likedUserIds.size();
