@@ -62,7 +62,7 @@ public class PodcastsDataSource {
     }
 
     public void loadPodcastsFromFB(FBPodcastsCallback listener) {
-        podcastsRef.orderByChild("description")//sort
+        podcastsRef.orderByChild("vodName")//sort
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
