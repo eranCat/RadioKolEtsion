@@ -18,9 +18,9 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.erank.koletsionpods.R;
-import com.erank.koletsionpods.db.PodcastsDataSource;
-import com.erank.koletsionpods.db.UserDataSource;
-import com.erank.koletsionpods.db.models.User;
+import com.erank.koletsionpods.utils.db.PodcastsDataSource;
+import com.erank.koletsionpods.utils.db.UserDataSource;
+import com.erank.koletsionpods.utils.db.models.User;
 import com.erank.koletsionpods.utils.ErrorDialog;
 import com.erank.koletsionpods.utils.helpers.AuthHelper;
 import com.erank.koletsionpods.utils.listeners.OnTextChangedAdapter;

@@ -6,8 +6,8 @@ import android.content.Intent;
 
 import com.erank.koletsionpods.R;
 import com.erank.koletsionpods.activities.LoginSignUpActivity;
-import com.erank.koletsionpods.db.UserDataSource;
-import com.erank.koletsionpods.db.models.User;
+import com.erank.koletsionpods.utils.db.UserDataSource;
+import com.erank.koletsionpods.utils.db.models.User;
 import com.erank.koletsionpods.utils.listeners.OnUserCreatedCallback;
 import com.erank.koletsionpods.utils.listeners.OnUserDataLoadedListener;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

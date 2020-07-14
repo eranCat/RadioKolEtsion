@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.erank.koletsionpods.R;
-import com.erank.koletsionpods.db.PodcastsDataSource;
-import com.erank.koletsionpods.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.PodcastsDataSource;
+import com.erank.koletsionpods.utils.db.models.Podcast;
 import com.erank.koletsionpods.utils.enums.PodcastState;
 import com.erank.koletsionpods.utils.listeners.OnPodcastClickListener;
 import com.wnafee.vector.MorphButton;

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.erank.koletsionpods.R;
-import com.erank.koletsionpods.db.models.Comment;
+import com.erank.koletsionpods.utils.db.models.Comment;
 import com.erank.koletsionpods.utils.listeners.OnCommentClickCallback;
 
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.erank.koletsionpods.media_player;
+package com.erank.koletsionpods.utils.media_player;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

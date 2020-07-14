@@ -1,8 +1,8 @@
-package com.erank.koletsionpods.db;
+package com.erank.koletsionpods.utils.db;
 
 import android.os.AsyncTask;
 
-import com.erank.koletsionpods.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.models.Podcast;
 import com.erank.koletsionpods.utils.listeners.PodcastsLoadingListener;
 
 import org.json.JSONArray;

@@ -1,4 +1,4 @@
-package com.erank.koletsionpods.db.models;
+package com.erank.koletsionpods.utils.db.models;
 
 import com.erank.koletsionpods.utils.enums.PodcastState;
 import com.google.firebase.database.Exclude;
@@ -22,9 +22,12 @@ public class Podcast {
 
     @Exclude
     public PodcastState state;
-    private String id;
     private String description;
     private String audioUrl;
+    public long duration;
+    private String id;
+    private String defaultStream;
+    @Exclude
     private Date date;
     @Exclude
     private Set<String> likedUserIds;
@@ -52,6 +55,29 @@ public class Podcast {
 
         String filepath = podcast.getString("filePath");
         audioUrl = baseHttp + filepath;
+    }
+
+    public String getDefaultStream() {
+        return defaultStream;
+    }
+
+    public void setDefaultStream(String defaultStream) {
+        this.defaultStream = defaultStream;
+    }
+
+    @Override
+    public String toString() {
+        return "Podcast{" +
+                "state=" + state +
+                ", id='" + id + '\'' +
+                ", description='" + description + '\'' +
+                ", audioUrl='" + audioUrl + '\'' +
+                ", defaultStream='" + defaultStream + '\'' +
+                ", date=" + date +
+                ", duration=" + duration +
+                ", likedUserIds=" + likedUserIds +
+                ", comments=" + comments +
+                '}';
     }
 
     @Exclude
@@ -85,7 +111,7 @@ public class Podcast {
     }
 
     @PropertyName("likes")
-    public void setlikedUserIds(Map<String, Boolean> likedUserIds) {
+    public void setLikedUserIds(Map<String, Boolean> likedUserIds) {
         this.likedUserIds = new HashSet<>(likedUserIds.keySet());
     }
 
@@ -94,10 +120,12 @@ public class Podcast {
         return likedUserIds;
     }
 
+    @PropertyName("filePath")
     public String getAudioUrl() {
         return audioUrl;
     }
 
+    @PropertyName("filePath")
     public void setAudioUrl(String audioUrl) {
         this.audioUrl = audioUrl;
     }
@@ -116,6 +144,14 @@ public class Podcast {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Long getCreationDate() {
+        return date.getTime();
+    }
+
+    public void setCreationDate(Long timeStamp) {
+        this.date = new Date(timeStamp);
     }
 
     @Exclude
@@ -197,10 +233,10 @@ public class Podcast {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("id",id);
-        map.put("description",description);
-        map.put("audioUrl",audioUrl);
-        map.put("date",date);
+        map.put("id", id);
+        map.put("description", description);
+        map.put("audioUrl", audioUrl);
+        map.put("date", date);
 
         return map;
     }
@@ -214,7 +250,7 @@ public class Podcast {
         }
     }
 
-    public static class LikesComperator implements Comparator<Podcast> {
+    public static class LikesComparator implements Comparator<Podcast> {
         @Override
         public int compare(Podcast o1, Podcast o2) {
             return o1.likedUserIds.size() - o2.likedUserIds.size();

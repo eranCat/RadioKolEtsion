@@ -1,6 +1,6 @@
 package com.erank.koletsionpods.utils.listeners;
 
-import com.erank.koletsionpods.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.models.Podcast;
 
 import java.util.List;
 
