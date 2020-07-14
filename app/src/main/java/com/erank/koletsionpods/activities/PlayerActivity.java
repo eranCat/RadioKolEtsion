@@ -1,7 +1,6 @@
 package com.erank.koletsionpods.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,11 +27,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.erank.koletsionpods.R;
 import com.erank.koletsionpods.adapters.CommentsAdapter;
-import com.erank.koletsionpods.db.PodcastsDataSource;
-import com.erank.koletsionpods.db.UserDataSource;
-import com.erank.koletsionpods.db.models.Comment;
-import com.erank.koletsionpods.db.models.Podcast;
-import com.erank.koletsionpods.media_player.MediaPlayerHelper;
+import com.erank.koletsionpods.utils.db.PodcastsDataSource;
+import com.erank.koletsionpods.utils.db.UserDataSource;
+import com.erank.koletsionpods.utils.db.models.Comment;
+import com.erank.koletsionpods.utils.db.models.Podcast;
+import com.erank.koletsionpods.utils.media_player.MediaPlayerHelper;
 import com.erank.koletsionpods.receivers.NotificationActionReceiver;
 import com.erank.koletsionpods.utils.ErrorDialog;
 import com.erank.koletsionpods.utils.helpers.AuthHelper;

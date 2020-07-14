@@ -1,4 +1,4 @@
-package com.erank.koletsionpods.db.models;
+package com.erank.koletsionpods.utils.db.models;
 
 import android.net.Uri;
 

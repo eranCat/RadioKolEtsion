@@ -4,11 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 
-import androidx.core.content.ContextCompat;
-
 import com.erank.koletsionpods.R;
-import com.erank.koletsionpods.activities.PlayerActivity;
-import com.erank.koletsionpods.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.models.Podcast;
 
 public class SharingHelper {
     private static SharingHelper instance;

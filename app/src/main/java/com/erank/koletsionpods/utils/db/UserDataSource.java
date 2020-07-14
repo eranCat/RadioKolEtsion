@@ -1,9 +1,9 @@
-package com.erank.koletsionpods.db;
+package com.erank.koletsionpods.utils.db;
 
 import androidx.annotation.NonNull;
 
-import com.erank.koletsionpods.db.models.Podcast;
-import com.erank.koletsionpods.db.models.User;
+import com.erank.koletsionpods.utils.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.models.User;
 import com.erank.koletsionpods.utils.listeners.OnUserDataLoadedListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;

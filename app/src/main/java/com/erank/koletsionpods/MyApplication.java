@@ -6,12 +6,12 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 
-import com.erank.koletsionpods.media_player.MediaPlayerHelper;
-import com.erank.koletsionpods.media_player.NotificationActionService;
+import com.erank.koletsionpods.utils.media_player.MediaPlayerHelper;
+import com.erank.koletsionpods.utils.media_player.NotificationActionService;
 import com.erank.koletsionpods.utils.helpers.NotificationHelper;
 import com.google.firebase.FirebaseApp;
 
-public class AppManager extends Application {
+public class MyApplication extends Application {
     public static final String CHANNEL_ID = "notificationService";
 
     @Override

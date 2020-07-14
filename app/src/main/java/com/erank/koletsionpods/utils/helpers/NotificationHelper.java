@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.DrawableRes;
@@ -19,12 +18,12 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.app.NotificationCompat;
 
-import com.erank.koletsionpods.AppManager;
+import com.erank.koletsionpods.MyApplication;
 import com.erank.koletsionpods.R;
 import com.erank.koletsionpods.activities.SplashScreenActivity;
-import com.erank.koletsionpods.db.models.Podcast;
-import com.erank.koletsionpods.media_player.MediaPlayerHelper;
-import com.erank.koletsionpods.media_player.NotificationActionService;
+import com.erank.koletsionpods.utils.db.models.Podcast;
+import com.erank.koletsionpods.utils.media_player.MediaPlayerHelper;
+import com.erank.koletsionpods.utils.media_player.NotificationActionService;
 import com.erank.koletsionpods.receivers.NotificationActionBroadcaster;
 import com.erank.koletsionpods.utils.enums.MPServiceStates;
 
@@ -100,7 +99,7 @@ public class NotificationHelper {
 
         Action togglePlayPause = generatePlayPauseAction(context, podcast.isPlaying());
 
-        Builder builder = new Builder(context, AppManager.CHANNEL_ID)
+        Builder builder = new Builder(context, MyApplication.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_headset)
                 .setLargeIcon(artwork)
                 .setDeleteIntent(deleteIntent)

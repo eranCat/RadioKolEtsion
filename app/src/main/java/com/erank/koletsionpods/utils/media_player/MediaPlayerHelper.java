@@ -1,17 +1,15 @@
-package com.erank.koletsionpods.media_player;
+package com.erank.koletsionpods.utils.media_player;
 
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 
 import androidx.core.math.MathUtils;
 
-import com.erank.koletsionpods.db.PodcastsDataSource;
-import com.erank.koletsionpods.db.models.Podcast;
+import com.erank.koletsionpods.utils.db.PodcastsDataSource;
+import com.erank.koletsionpods.utils.db.models.Podcast;
 import com.erank.koletsionpods.utils.enums.PodcastState;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +66,7 @@ public class MediaPlayerHelper
 
         mp.reset();
 
-        new SetDSAsync(mp).execute(podcast.getAudioUrl());
+        new SetDSAsync(mp).execute(podcast);
         podcast.state = PodcastState.LOADING;
     }
 

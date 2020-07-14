@@ -1,4 +1,4 @@
-package com.erank.koletsionpods.db.models;
+package com.erank.koletsionpods.utils.db.models;
 
 import com.erank.koletsionpods.utils.enums.PodcastState;
 import com.google.firebase.database.Exclude;
@@ -22,24 +22,24 @@ public class Podcast {
 
     @Exclude
     public PodcastState state;
+    private String description;
+    private String audioUrl;
+    public long duration;
     private String id;
-    @PropertyName("vodName")
-    public String description;
-    @PropertyName("filePath")
-    public String audioUrl;
     private String defaultStream;
     @Exclude
     private Date date;
-    public long duration;
     @Exclude
     private Set<String> likedUserIds;
     @Exclude
     private List<Comment> comments;
+
     public Podcast() {
         likedUserIds = new HashSet<>();
         comments = new ArrayList<>();
         state = PodcastState.DEFAULT;
     }
+
     public Podcast(JSONObject podcast, String baseHttp) throws JSONException {
         this();
 //                id of the podcast
@@ -63,6 +63,21 @@ public class Podcast {
 
     public void setDefaultStream(String defaultStream) {
         this.defaultStream = defaultStream;
+    }
+
+    @Override
+    public String toString() {
+        return "Podcast{" +
+                "state=" + state +
+                ", id='" + id + '\'' +
+                ", description='" + description + '\'' +
+                ", audioUrl='" + audioUrl + '\'' +
+                ", defaultStream='" + defaultStream + '\'' +
+                ", date=" + date +
+                ", duration=" + duration +
+                ", likedUserIds=" + likedUserIds +
+                ", comments=" + comments +
+                '}';
     }
 
     @Exclude
@@ -105,10 +120,12 @@ public class Podcast {
         return likedUserIds;
     }
 
+    @PropertyName("filePath")
     public String getAudioUrl() {
         return audioUrl;
     }
 
+    @PropertyName("filePath")
     public void setAudioUrl(String audioUrl) {
         this.audioUrl = audioUrl;
     }
@@ -129,7 +146,9 @@ public class Podcast {
         this.date = date;
     }
 
-    public Long getCreationDate(){return date.getTime();}
+    public Long getCreationDate() {
+        return date.getTime();
+    }
 
     public void setCreationDate(Long timeStamp) {
         this.date = new Date(timeStamp);
